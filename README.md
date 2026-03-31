@@ -18,6 +18,7 @@ Ce projet consiste à développer une API REST avec Spring Boot pour gérer une 
 - Docker et Docker Compose
 - Flutter SDK (pour l'application mobile)
 - Git
+  
 # Construire et démarrer les conteneurs
 docker compose up --build -d
 
@@ -37,5 +38,10 @@ docker ps
 # Voir les logs
 docker logs -f etudiants-api
 
-### execution 
-https://screenshot/execution.PNG
+## 📸 Captures d'écran
+
+### Application Flutter - Liste des étudiants
+
+![Liste des étudiants](screenshot/execution.PNG)
+
+*Affichage de la liste des étudiants dans l'application Flutter*
