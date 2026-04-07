@@ -42,11 +42,11 @@ docker logs -f etudiants-api
 
 Application Flutter - Liste des étudiants
 
-https://execution1.png
+![Liste des étudiants - Exécution 1](execution1.png)
 
-https://execution2.png
+![Liste des étudiants - Exécution 2](execution2.png)
 
-https://execution3.png
+![Liste des étudiants - Exécution 3](execution3.png)
 
 ### Projet Étudiants - API REST Spring Boot + Application Mobile Flutter - Partie 2
 
@@ -78,15 +78,15 @@ Base de données: PostgreSQL 15
 
 ### Construction de l'image Docker
 
-https://construire_image.png
+![Construction de l'image Docker](construire_image.png)
 
 ### Publication de l'image sur Docker Hub
 
-https://pousser_image.png
+![Publication de l'image sur Docker Hub](pousser_image.png)
 
 ### verification 
 
-https://verification.png
+![Vérification du déploiement](verification.png)
 
 ### Déployer sur Kubernetes (K3S)
 
