@@ -34,8 +34,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      title: 'Gestion des Étudiants',
       theme: ThemeData(
-        scaffoldBackgroundColor: const Color(0xFFF8F8F8),
+        primarySwatch: Colors.blue,
+        useMaterial3: true,
       ),
       home: const EtudiantPage(),
     );
@@ -61,11 +63,16 @@ class _EtudiantPageState extends State<EtudiantPage> {
   }
 
   Future<void> fetchEtudiants() async {
-    setState(() { loading = true; hasError = false; });
+    setState(() {
+      loading = true;
+      hasError = false;
+    });
+
     try {
       final response = await http.get(
-        Uri.parse('http://localhost:8081/api/etudiants'),
+        Uri.parse('http://localhost:8083/api/etudiants'),
       );
+
       if (response.statusCode == 200) {
         final List data = jsonDecode(response.body);
         setState(() {
@@ -73,10 +80,16 @@ class _EtudiantPageState extends State<EtudiantPage> {
           loading = false;
         });
       } else {
-        setState(() { hasError = true; loading = false; });
+        setState(() {
+          hasError = true;
+          loading = false;
+        });
       }
     } catch (e) {
-      setState(() { hasError = true; loading = false; });
+      setState(() {
+        hasError = true;
+        loading = false;
+      });
     }
   }
 
@@ -84,103 +97,241 @@ class _EtudiantPageState extends State<EtudiantPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0.5,
-        centerTitle: true,
         title: const Text(
           'Liste des Étudiants',
-          style: TextStyle(
-            color: Color(0xFF1A1A1A),
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
+        centerTitle: true,
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
+        elevation: 2,
         actions: [
-          TextButton(
+          IconButton(
+            icon: const Icon(Icons.refresh),
             onPressed: fetchEtudiants,
-            child: const Text(
-              'Actualiser',
-              style: TextStyle(color: Color(0xFFFF6B6B)),
-            ),
+            tooltip: 'Actualiser',
           ),
         ],
       ),
       body: loading
           ? const Center(
-              child: CircularProgressIndicator(color: Color(0xFFFF6B6B)),
-            )
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(
+              color: Colors.blue,
+            ),
+            SizedBox(height: 16),
+            Text(
+              'Chargement des étudiants...',
+              style: TextStyle(color: Colors.grey),
+            ),
+          ],
+        ),
+      )
           : hasError
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        'Erreur de connexion',
-                        style: TextStyle(color: Colors.grey, fontSize: 16),
-                      ),
-                      const SizedBox(height: 16),
-                      TextButton(
-                        onPressed: fetchEtudiants,
-                        child: const Text(
-                          'Réessayer',
-                          style: TextStyle(color: Color(0xFFFF6B6B)),
-                        ),
-                      ),
-                    ],
+          ? Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline,
+              size: 64,
+              color: Colors.grey.shade400,
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Erreur de connexion',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Impossible de charger la liste',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey.shade500,
+              ),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: fetchEtudiants,
+              icon: const Icon(Icons.refresh),
+              label: const Text('Réessayer'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                foregroundColor: Colors.white,
+              ),
+            ),
+          ],
+        ),
+      )
+          : etudiants.isEmpty
+          ? Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.people_outline,
+              size: 64,
+              color: Colors.grey.shade400,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Aucun étudiant',
+              style: TextStyle(
+                fontSize: 18,
+                color: Colors.grey.shade600,
+              ),
+            ),
+          ],
+        ),
+      )
+          : ListView.separated(
+        padding: const EdgeInsets.all(16),
+        itemCount: etudiants.length,
+        separatorBuilder: (context, index) => const SizedBox(height: 12),
+        itemBuilder: (context, index) {
+          final e = etudiants[index];
+          return Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: ListTile(
+              contentPadding: const EdgeInsets.all(16),
+              leading: CircleAvatar(
+                radius: 28,
+                backgroundColor: Colors.blue.shade100,
+                child: Text(
+                  e.nom.isNotEmpty ? e.nom[0].toUpperCase() : '?',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue.shade700,
                   ),
-                )
-              : ListView.separated(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 12, horizontal: 16),
-                  itemCount: etudiants.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 10),
-                  itemBuilder: (context, index) {
-                    final e = etudiants[index];
-                    return Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.04),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            e.nom,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15,
-                              color: Color(0xFF1A1A1A),
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'CIN : ${e.cin}',
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: Colors.grey,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            'Né le : ${e.dateNaissance}',
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
                 ),
+              ),
+              title: Text(
+                e.nom,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 4),
+                  Text(
+                    'CIN: ${e.cin}',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+                  Text(
+                    'Né(e) le: ${_formatDate(e.dateNaissance)}',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+                ],
+              ),
+              trailing: Icon(
+                Icons.chevron_right,
+                color: Colors.grey.shade400,
+              ),
+              onTap: () => _showDetailsDialog(e),
+            ),
+          );
+        },
+      ),
     );
+  }
+
+  void _showDetailsDialog(Etudiant e) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            CircleAvatar(
+              backgroundColor: Colors.blue.shade100,
+              child: Text(
+                e.nom[0].toUpperCase(),
+                style: TextStyle(
+                  color: Colors.blue.shade700,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                e.nom,
+                style: const TextStyle(fontSize: 18),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Divider(),
+            const SizedBox(height: 8),
+            _buildDetailItem(Icons.badge, 'CIN', e.cin),
+            const SizedBox(height: 12),
+            _buildDetailItem(Icons.cake, 'Date de naissance', _formatDate(e.dateNaissance)),
+            const SizedBox(height: 8),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Fermer'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetailItem(IconData icon, String label, String value) {
+    return Row(
+      children: [
+        Icon(icon, size: 20, color: Colors.blue.shade600),
+        const SizedBox(width: 12),
+        Text(
+          '$label:',
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 14,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.grey.shade700,
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _formatDate(String date) {
+    if (date.isEmpty) return date;
+    List<String> parts = date.split('-');
+    if (parts.length == 3) {
+      return '${parts[2]}/${parts[1]}/${parts[0]}';
+    }
+    return date;
   }
 }

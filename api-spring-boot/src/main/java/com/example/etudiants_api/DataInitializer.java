@@ -3,7 +3,8 @@ package com.example.etudiants_api;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import java.time.LocalDate;
-
+import com.example.etudiants_api.entity.Etudiant;
+import com.example.etudiants_api.repository.EtudiantRepository;
 @Component
 public class DataInitializer implements CommandLineRunner {
 

@@ -1,4 +1,4 @@
-package com.example.etudiants_api;
+package com.example.etudiants_api.entity;
 
 import jakarta.persistence.*;
         import lombok.*;
